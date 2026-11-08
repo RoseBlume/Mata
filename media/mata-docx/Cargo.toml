@@ -1,6 +1,6 @@
 [package]
 name = "mata-docx"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 license = "MIT"
 description = "DOCX/OOXML toolkit using Rust std plus the Mata font library"
@@ -21,8 +21,8 @@ path = "src/bin/mata-docx-edit.rs"
 
 [dependencies]
 # When placed at Mata/core/mata-docx, this refers to Mata/media/mata-fonts.
-mata-fonts = { path = "../../media/mata-fonts", default-features = false }
+mata-fonts = { path = "../../media/mata-fonts", default-features = false, version = "1.0.0" }
 
 # Mata workspace image codec implementation; no FFI is called by mata-docx.
 # JPEG/TIFF/PNG in sbix may be decoded without an OS image service.
-mata-image = { path = "../../media/mata-image", default-features = false, features = ["jpeg", "tiff", "png"] }
+mata-image = { path = "../../media/mata-image", default-features = false, features = ["jpeg", "tiff", "png"], version = "1.0.0" }

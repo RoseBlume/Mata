@@ -78,7 +78,8 @@ mod emoji;
 ///
 /// Visibility: **public**.
 pub mod webview;
-pub use mata_doc_edit::{DocEdit, PagedDocument, DrawTool, PaperSize, Point, Stroke, PageLayout};
+
+// pub use mata_doc_edit::{DocEdit, PagedDocument, DrawTool, PaperSize, Point, Stroke, PageLayout};
 /// Contains the window implementation.
 ///
 /// Visibility: **public**.

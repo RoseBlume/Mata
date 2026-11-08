@@ -1,18 +1,18 @@
 [package]
 name = "mata-ui"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
 description = "Mata software widgets, layout, text, media and Servo webview"
 autoexamples = false
 
 [dependencies]
-mata-doc-edit = { path = "../../media/mata-doc-edit" }
-mata-i18n = { path = "../../core/mata-i18n", optional = true }
-mata-win = { path = "../mata-win", default-features = false }
-mata-fonts = { path = "../../media/mata-fonts", optional = true }
-mata-image = { path = "../../media/mata-image", default-features = false, optional = true }
-mata-audio = { path = "../../media/mata-audio", optional = true }
-mata-video = { path = "../../media/mata-video", optional = true }
+# mata-doc-edit = { path = "../../media/mata-doc-edit" }
+mata-i18n = { path = "../../core/mata-i18n", optional = true, version = "1.0.0" }
+mata-win = { path = "../mata-win", default-features = false, version = "1.0.0" }
+mata-fonts = { path = "../../media/mata-fonts", optional = true, version = "1.0.0" }
+mata-image = { path = "../../media/mata-image", default-features = false, optional = true, version = "1.0.0" }
+mata-audio = { path = "../../media/mata-audio", optional = true, version = "1.0.0" }
+mata-video = { path = "../../media/mata-video", optional = true, version = "1.0.0" }
 # Servo 0.7 software framebuffer backend; no GTK/WebKit/WebView2 dependency.
 servo = { version = "=0.7.0", optional = true }
 dpi = { version = "0.1", optional = true }
