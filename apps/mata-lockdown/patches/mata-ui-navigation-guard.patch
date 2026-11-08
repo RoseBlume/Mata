@@ -1,0 +1,242 @@
+--- a/mata-ui/src/widgets/webview.rs
++++ b/mata-ui/src/widgets/webview.rs
+@@ -58,6 +58,14 @@
+     pub fn navigate(&self, uri: &str) -> Result<(), WidgetError> {
+         self.inner.navigate(uri)
+     }
++    /// Sets a navigation predicate. Redirects and iframe navigations are checked
++    /// by Windows WebView2 before proceeding. Must be set before navigating.
++    #[cfg(target_os = "windows")]
++    pub fn set_navigation_guard<F>(&self, predicate: F)
++    where F: Fn(&str) -> bool + Send + Sync + 'static {
++        self.inner.set_navigation_guard(std::sync::Arc::new(predicate));
++    }
++
+     #[inline]
+     #[doc = "Implements the go back operation. Visibility: public."]
+     pub fn go_back(&self) {
+--- a/mata-ui/src/widgets/windows/mod.rs
++++ b/mata-ui/src/widgets/windows/mod.rs
+@@ -6,7 +6,7 @@
+     Win32::{
+         Foundation::{ HWND, RECT },
+         System::{
+-            Com::{ COINIT_APARTMENTTHREADED, CoInitializeEx },
++            Com::{ COINIT_APARTMENTTHREADED, CoInitializeEx, CoTaskMemFree },
+             LibraryLoader::{ GetProcAddress, LoadLibraryW },
+         },
+     },
+@@ -34,6 +34,7 @@
+ /// Constant used for iid iunknown.
+ ///
+ /// Visibility: **private**.
++const IID_NAVIGATION_HANDLER: GUID = GUID::from_u128(0x9adbe429f36d432b9ddcf8881fbd76e3);
+ const IID_IUNKNOWN: GUID = GUID::from_u128(0x0000000000000000c000000000000046);
+ /// Constant used for iid environment completed handler.
+ ///
+@@ -498,6 +499,14 @@
+     ///
+     /// Visibility: **private**.
+     pending_uri: Option<Vec<u16>>,
++    /// Exam navigation policy; `None` preserves the legacy WebView behavior.
++    navigation_guard: Option<Arc<dyn Fn(&str) -> bool + Send + Sync>>,
++    /// Event handler lifetime (owned reference) and registration tokens.
++    navigation_handler: usize,
++    navigation_token: i64,
++    frame_navigation_token: i64,
++    navigation_registered: bool,
++    frame_navigation_registered: bool,
+     /// Stores closed.
+     ///
+     /// Visibility: **private**.
+@@ -600,6 +609,34 @@
+     state: Arc<Mutex<WebViewState>>,
+ }
+ 
++// COM signatures follow WebView2's ICoreWebView2NavigationStartingEventArgs ABI.
++#[repr(C)]
++struct NavigationStartingArgsVtbl {
++    unknown: IUnknownVtbl,
++    get_uri: unsafe extern "system" fn(*mut NavigationStartingArgs, *mut *mut u16) -> HRESULT,
++    get_is_user_initiated: usize,
++    get_is_redirected: usize,
++    get_request_headers: usize,
++    get_cancel: usize,
++    put_cancel: unsafe extern "system" fn(*mut NavigationStartingArgs, i32) -> HRESULT,
++    get_navigation_id: usize,
++}
++#[repr(C)]
++struct NavigationStartingArgs { vtbl: *const NavigationStartingArgsVtbl }
++
++#[repr(C)]
++struct NavigationHandlerVtbl {
++    unknown: IUnknownVtbl,
++    invoke: unsafe extern "system" fn(*mut NavigationHandler, *mut CoreWebView2,
++        *mut NavigationStartingArgs) -> HRESULT,
++}
++#[repr(C)]
++struct NavigationHandler {
++    vtbl: *const NavigationHandlerVtbl,
++    refs: AtomicU32,
++    state: Arc<Mutex<WebViewState>>,
++}
++
+ /// Contains the callbacks implementation.
+ ///
+ /// Visibility: **private**.
+--- a/mata-ui/src/widgets/windows/backend.rs
++++ b/mata-ui/src/widgets/windows/backend.rs
+@@ -3,7 +3,7 @@
+ //! This module documents both public API items and internal implementation details.
+ 
+ use super::*;
+-use super::callbacks::{ env_release, release_com, ENV_COMPLETED_VTBL };
++use super::callbacks::{ env_release, release_com, nav_release, ENV_COMPLETED_VTBL };
+ use super::loader::load_webview2_create;
+ 
+ /// Stores the state and data for web view.
+@@ -86,6 +86,11 @@
+         }
+     }
+ 
++    /// Installs a site-navigation policy that runs inside native WebView2 events.
++    pub fn set_navigation_guard(&self, predicate: Arc<dyn Fn(&str) -> bool + Send + Sync>) {
++        self.state.lock().unwrap().navigation_guard = Some(predicate);
++    }
++
+     /// Sets bounds.
+     ///
+     /// Visibility: **public**.
+@@ -168,11 +173,29 @@
+         state.closed = true;
+         let webview = state.webview as *mut CoreWebView2;
+         let controller = state.controller as *mut Controller;
++        let handler = state.navigation_handler as *mut NavigationHandler;
++        let nav_token = state.navigation_token;
++        let frame_token = state.frame_navigation_token;
++        let nav_registered = state.navigation_registered;
++        let frame_registered = state.frame_navigation_registered;
+         state.webview = 0;
+         state.controller = 0;
+-        drop(state);
+-
+-        unsafe {
++        state.navigation_handler = 0;
++        drop(state);
++
++        unsafe {
++            if !webview.is_null() {
++                type Remove = unsafe extern "system" fn(*mut CoreWebView2, i64) -> HRESULT;
++                if nav_registered {
++                    let func: Remove = mem::transmute((*(*webview).vtbl).remove_navigation_starting);
++                    let _ = func(webview, nav_token);
++                }
++                if frame_registered {
++                    let func: Remove = mem::transmute((*(*webview).vtbl).remove_frame_navigation_starting);
++                    let _ = func(webview, frame_token);
++                }
++            }
++            if !handler.is_null() { nav_release(handler.cast()); }
+             release_com(webview);
+             release_com(controller);
+         }
+--- a/mata-ui/src/widgets/windows/callbacks.rs
++++ b/mata-ui/src/widgets/windows/callbacks.rs
+@@ -138,6 +138,59 @@
+         },
+         invoke: controller_completed,
+     };
++
++// NavigationStarting and FrameNavigationStarting share the same event ABI.
++unsafe extern "system" fn nav_query_interface(this: *mut c_void, iid: *const GUID,
++    object: *mut *mut c_void) -> HRESULT {
++    if iid.is_null() || object.is_null() { return E_POINTER; }
++    unsafe { *object = ptr::null_mut(); }
++    let requested = unsafe { *iid };
++    if requested != IID_IUNKNOWN && requested != IID_NAVIGATION_HANDLER { return E_NOINTERFACE; }
++    unsafe { *object = this; nav_add_ref(this); }
++    HRESULT(0)
++}
++unsafe extern "system" fn nav_add_ref(this: *mut c_void) -> u32 {
++    unsafe { (*this.cast::<NavigationHandler>()).refs.fetch_add(1, Ordering::Relaxed) + 1 }
++}
++pub(super) unsafe extern "system" fn nav_release(this: *mut c_void) -> u32 {
++    let this = this.cast::<NavigationHandler>();
++    let remaining = unsafe { (*this).refs.fetch_sub(1, Ordering::Release) - 1 };
++    if remaining == 0 {
++        std::sync::atomic::fence(Ordering::Acquire);
++        unsafe { drop(Box::from_raw(this)); }
++    }
++    remaining
++}
++unsafe extern "system" fn nav_invoke(this: *mut NavigationHandler, _sender: *mut CoreWebView2,
++    args: *mut NavigationStartingArgs) -> HRESULT {
++    if this.is_null() || args.is_null() { return E_POINTER; }
++    let mut raw: *mut u16 = ptr::null_mut();
++    let hr = unsafe { ((*(*args).vtbl).get_uri)(args, &mut raw) };
++    // Fail closed if the destination cannot be inspected.
++    let mut approved = false;
++    if hr.0 >= 0 && !raw.is_null() {
++        let mut len = 0;
++        while len < 8192 && unsafe { *raw.add(len) } != 0 { len += 1; }
++        if len < 8192 {
++            let uri = String::from_utf16_lossy(unsafe { std::slice::from_raw_parts(raw, len) });
++            let guard = unsafe { &*this }.state.lock().unwrap().navigation_guard.clone();
++            approved = guard.as_ref().is_none_or(|f| f(&uri));
++        }
++    }
++    if !raw.is_null() { unsafe { CoTaskMemFree(Some(raw.cast())); } }
++    if !approved {
++        unsafe { let _ = ((*(*args).vtbl).put_cancel)(args, 1); }
++    }
++    HRESULT(0)
++}
++static NAVIGATION_VTBL: NavigationHandlerVtbl = NavigationHandlerVtbl {
++    unknown: IUnknownVtbl {
++        query_interface: nav_query_interface,
++        add_ref: nav_add_ref,
++        release: nav_release,
++    },
++    invoke: nav_invoke,
++};
+ 
+ /// Implements release com.
+ ///
+@@ -269,6 +322,37 @@
+         return HRESULT(0);
+     }
+ 
++    // Register both top-level and iframe navigation interceptors before
++    // publishing the WebView or navigating. This registration is fail-closed.
++    let nav = Box::into_raw(Box::new(NavigationHandler {
++        vtbl: &NAVIGATION_VTBL,
++        refs: AtomicU32::new(1),
++        state: this_ref.state.clone(),
++    }));
++    type Add = unsafe extern "system" fn(*mut CoreWebView2, *mut NavigationHandler, *mut i64) -> HRESULT;
++    type Remove = unsafe extern "system" fn(*mut CoreWebView2, i64) -> HRESULT;
++    let add: Add = unsafe { mem::transmute((*(*webview).vtbl).add_navigation_starting) };
++    let frame_add: Add = unsafe { mem::transmute((*(*webview).vtbl).add_frame_navigation_starting) };
++    let mut nav_token = 0i64;
++    let mut frame_token = 0i64;
++    let nav_hr = unsafe { add(webview, nav, &mut nav_token) };
++    let frame_hr = if nav_hr.0 >= 0 { unsafe { frame_add(webview, nav, &mut frame_token) } }
++        else { nav_hr };
++    if nav_hr.0 < 0 || frame_hr.0 < 0 {
++        if nav_hr.0 >= 0 {
++            let remove: Remove = unsafe { mem::transmute((*(*webview).vtbl).remove_navigation_starting) };
++            unsafe { let _ = remove(webview, nav_token); }
++        }
++        unsafe { nav_release(nav.cast()); release_com(webview); release_com(controller); }
++        push_event(this_ref.host_id, WidgetEvent::WebViewError(
++            this_ref.widget_id, "WebView2 navigation guard initialization failed".into()));
++        return HRESULT(0);
++    }
++    state.navigation_handler = nav as usize;
++    state.navigation_token = nav_token;
++    state.frame_navigation_token = frame_token;
++    state.navigation_registered = true;
++    state.frame_navigation_registered = true;
+     state.controller = controller as usize;
+     state.webview = webview as usize;
+     let bounds = state.bounds;

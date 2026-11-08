@@ -1,0 +1,51 @@
+diff --git a/mata-win/src/window/windows/mod.rs b/mata-win/src/window/windows/mod.rs
+--- a/mata-win/src/window/windows/mod.rs
++++ b/mata-win/src/window/windows/mod.rs
+@@ -26,6 +26,7 @@
+                 CreateIconFromResourceEx,
+                 DefWindowProcW,
+                 GetClientRect,
++                ScreenToClient,
+                 DestroyIcon,
+                 GetSystemMetrics,
+                 HICON,
+@@ -98,7 +99,7 @@
+ 
+ use crate::buffer::Framebuffer;
+ use super::DirtyRect;
+-use crate::events::{ Key, WindowEvent, EVENT_QUEUE, KEYS_DOWN };
++use crate::events::{ Key, WindowEvent, Touch, TouchEvent, TOUCH_QUEUE, EVENT_QUEUE, KEYS_DOWN };
+ use renderer::Direct2DRenderer;
+ 
+ pub use windows::Win32::Foundation::HWND;
+@@ -292,6 +293,30 @@
+             LRESULT(0)
+         }
+ 
++        // WM_POINTER coordinates are signed SCREEN pixels (unlike mouse input).
++        // Decode only the low 16-bit contact ID from WPARAM so multi-touch
++        // contacts retain independent gesture state. This uses Windows APIs
++        // already available through the existing `windows` crate.
++        0x0245 | 0x0246 | 0x0247 | 0x024C => {
++            let raw=lparam.0 as usize;
++            let mut point=POINT {
++                x:(raw as u16 as i16) as i32,
++                y:((raw >> 16) as u16 as i16) as i32,
++            };
++            let _=unsafe { ScreenToClient(hwnd,&mut point) };
++            let id=(wparam.0 & 0xffff) as u16;
++            let event=match msg {
++                0x0246 => TouchEvent::Started(point.x.max(0) as u64, point.y.max(0) as u64),
++                0x0247 => TouchEvent::Ended(point.x.max(0) as u64, point.y.max(0) as u64),
++                0x024C => TouchEvent::Cancelled,
++                _ => TouchEvent::Moved(point.x.max(0) as u64, point.y.max(0) as u64),
++            };
++            TOUCH_QUEUE.get_or_init(||Mutex::new(Vec::new())).lock().unwrap().push(
++                Touch {device_id:format!("windows-pointer:{id}"),event}
++            );
++            // Preserve default pointer processing and promoted mouse clicks.
++            unsafe {DefWindowProcW(hwnd,msg,wparam,lparam)}
++        }
+         WM_MOUSEMOVE => {
+             push_mouse_position(lparam);
+             LRESULT(0)

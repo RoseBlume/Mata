@@ -1,0 +1,8 @@
+[package]
+name = "mata-json"
+version = "0.1.0"
+edition = "2024"
+description = "Dependency-free JSON parser, serializer, and typed codecs for Mata"
+license = "MIT OR Apache-2.0"
+
+[dependencies]

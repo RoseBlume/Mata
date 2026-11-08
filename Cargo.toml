@@ -1,0 +1,31 @@
+[workspace]
+exclude = ["legacy/mata-html"]
+resolver = "3"
+members = [
+    "projects/*", 
+    "macros/*", 
+    "ui/*", 
+    "media/*", 
+    "web/*", 
+    "graphics/*", 
+    "apps/*", 
+    "tools/*", 
+    "core/*"
+]
+
+# default-members = [
+#     "ui/mata-win", 
+#     "ui/mata-ui", 
+#     "media/mata-image", 
+#     "media/mata-fonts", 
+#     "web/mata-req",
+#     "apps/mata-browser",
+#     "apps/studyforge",
+#     "graphics/mata-gpu-intrinsics"
+# ]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+

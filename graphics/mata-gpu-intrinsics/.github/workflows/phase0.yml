@@ -1,0 +1,34 @@
+name: Phase 0 catalog and compatibility
+on:
+  push:
+  pull_request:
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Baseline static validation
+        run: |
+          python3 tools/validate_catalog.py
+          python3 tools/validate_dispatch.py
+          python3 tools/validate_nvidia.py
+          python3 tools/validate_amd.py
+          python3 tools/phase0_audit.py --check
+          python3 tools/phase2_audit.py
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Compile all targets without a GPU
+        run: |
+          cargo check --all-targets --all-features
+          cargo check --all-targets --no-default-features
+          cargo test --all-features
+          cargo test --test phase2_validation --all-features
+          cargo test --no-default-features
+          cargo doc --all-features --no-deps
+          cargo run --example phase2_checked_kernel

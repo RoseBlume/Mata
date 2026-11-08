@@ -1,0 +1,9 @@
+{
+  "app": {
+    "title": "Mata",
+    "welcome": "Bienvenue, {name} !",
+    "file_count": "{count, plural, =0 {Aucun fichier} one {# fichier} other {# fichiers}}",
+    "notification": "{person, select, unknown {Nouveau message} other {Message de {person}}}"
+  },
+  "actions": { "save": "Enregistrer", "cancel": "Annuler" }
+}

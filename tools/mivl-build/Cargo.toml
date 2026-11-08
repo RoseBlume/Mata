@@ -1,0 +1,9 @@
+[package]
+name = "mivl-build"
+version = "0.6.0"
+edition = "2024"
+license = "MIT"
+description = "Build-time MIVL compiler and Rust component code generator (no external crates)"
+
+[dependencies]
+mivl = { path = "../../ui/mivl", default-features = false }

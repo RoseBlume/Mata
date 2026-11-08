@@ -1,0 +1,21 @@
+[package]
+name = "mineral-empire"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Original mining empire incremental game with layered prestiges"
+
+[lib]
+name = "mineral_empire"
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "mineral-empire"
+path = "src/main.rs"
+
+[dependencies]
+mata-win = { path = "../../ui/mata-win", default-features = false, features = ["wayland", "x11"] }
+mata-ui = { path = "../../ui/mata-ui", default-features = false, features = ["fonts"] }
+mata-image = { path = "../../media/mata-image", default-features = false, features = ["png"] }
+mata-audio = { path = "../../media/mata-audio", default-features = false, features = ["native-playback", "codec-pcm", "demux-wav"] }
+

@@ -1,0 +1,20 @@
+[package]
+name = "mata-neon-run"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Mata-native multithreaded software 3D run-and-gun shooter"
+
+# Neon Run depends directly ONLY on first-party Mata crates.
+# Platform libraries, device backends, and graphics presentation belong in
+# their owner crates (mata-win and mata-audio), not in the game manifest.
+[dependencies]
+mata-gpu-intrinsics = { path = "../../graphics/mata-gpu-intrinsics" }
+mata-win = { path = "../../ui/mata-win", default-features = false, features = ["x11"] }
+mata-3d = { path = "../../graphics/mata-3d" }
+mata-audio = { path = "../../media/mata-audio", optional = true }
+
+[features]
+default = ["audio"]
+audio = ["dep:mata-audio"]
+

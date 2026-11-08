@@ -1,0 +1,24 @@
+[package]
+name = "mata-molecule"
+version = "0.1.0"
+edition = "2024"
+description = "Dependency-free chemical graph analysis and Mata 2D/3D molecule studio"
+
+[dependencies]
+mata-win = { path = "../../ui/mata-win", default-features = false }
+mata-3d = { path = "../../graphics/mata-3d", default-features = false }
+mata-fonts = { path = "../../media/mata-fonts" }
+mata-gpu-intrinsics = { path = "../../graphics/mata-gpu-intrinsics", default-features = false }
+
+# Reuses the same `windows` crate already used by mata-win. Only compiled on Windows.
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.62.2", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_Controls_Dialogs", "Win32_UI_WindowsAndMessaging"] }
+
+[features]
+default = ["x11"]
+x11 = ["mata-win/x11", "mata-3d/x11"]
+wayland = ["mata-win/wayland", "mata-3d/wayland"]
+
+[lib]
+name = "mata_molecule"
+path = "src/lib.rs"

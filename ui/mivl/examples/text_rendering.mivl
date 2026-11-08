@@ -1,0 +1,89 @@
+Window {
+    title: "MIVL Multiline Text and Clipping"
+    width: 840
+    height: 600
+    color: "#0f172a"
+
+    Column {
+        x: 24
+        y: 20
+        width: 92vw
+        height: 90vh
+        spacing: 16
+
+        Text {
+            text: "MIVL text renderer"
+            color: "#ffffff"
+            fontSize: 30
+            height: auto
+        }
+        Text {
+            id: caption
+            width: 100%
+            height: auto
+            fontSize: 18
+            color: "#cbd5e1"
+            wrap: true
+            wrapMode: "word"
+            text: "Resize this window. Every line should remain fully visible and the wrapped text should calculate its natural height using the active Mata font."
+        }
+
+        Rectangle {
+            id: viewport
+            width: 100%
+            height: 45vh
+            color: "#1e293b"
+            padding: 18px
+            overflow: "auto"
+            scrollbarPolicy: "auto"
+            scrollbarColor: "#38bdf8"
+
+            Column {
+                width: parent.width - 40px
+                height: auto
+                spacing: 12px
+                Text {
+                    width: 100%
+                    height: auto
+                    fontSize: 24
+                    color: "#ffffff"
+                    wrapMode: "word"
+                    text: "A long heading that wraps across the viewport without being cut off or changing its position as you scroll"
+                }
+                Text {
+                    width: 100%
+                    height: auto
+                    color: "#cbd5e1"
+                    wrapMode: "word"
+                    lineHeight: 1.6
+                    text: "The view clips partially visible letters at its edges, without moving their baselines or their original horizontal alignment. LongWordWithoutAnyNaturalBreakPointsIsAlsoSplitToFitTheAvailableWidthCorrectly."
+                }
+                Text {
+                    width: 100%
+                    height: auto
+                    color: "#fde68a"
+                    fontSize: 18
+                    textAlign: "center"
+                    wrap: true
+                    text: "Centered line one. The second part wraps into more lines but stays centered in the original content box."
+                }
+                Text {
+                    width: 100%
+                    height: auto
+                    color: "#86efac"
+                    maxLines: 2
+                    wrapMode: "word"
+                    textOverflow: "ellipsis"
+                    text: "This paragraph demonstrates the maximum line count, followed by an ellipsis when it contains more text than the available two lines can display."
+                }
+                Text {
+                    width: 100%
+                    height: auto
+                    wrap: true
+                    color: "#ffffff"
+                    text: "The last line confirms wheel, drag and scrollbar scrolling preserve the original glyph origin."
+                }
+            }
+        }
+    }
+}

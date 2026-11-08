@@ -1,0 +1,49 @@
+Window {
+    title: "MIVL Rust bridge"
+    width: 640
+    height: 360
+    property string greeting: "No greeting yet"
+    property string status: "Ready"
+    property int sum: 0
+    property int asyncRequest: 0
+
+    onCommandCompleted: { status = commandName + ": " + commandResult }
+    onCommandFailed: { status = commandError }
+
+    EventListener {
+        id: updates
+        event: "notification"
+        repeat: true
+        enabled: true
+        onTriggered: { status = eventData }
+    }
+    EventListener {
+        id: startupOnce
+        event: "startup"
+        onTriggered: { greeting = eventData }
+    }
+    EventListener {
+        id: firstThree
+        event: "counter"
+        times: 3
+        onTriggered: { sum += eventData }
+    }
+    Column {
+        x: 20; y: 20; spacing: 10
+        Text { width: 590; text: greeting }
+        Text { width: 590; text: status }
+        Text { width: 590; text: "Sum: " + sum }
+        Button {
+            text: "Rust sync"
+            onClicked: { greeting = invoke("greet", "MIVL") }
+        }
+        Button {
+            text: "Rust async"
+            onClicked: { asyncRequest = invoke_async("multiply", 6, 7) }
+        }
+        Button {
+            text: "Toggle notifications"
+            onClicked: { updates.enabled = !updates.enabled }
+        }
+    }
+}

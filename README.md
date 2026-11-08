@@ -74,8 +74,3 @@ The previous `Cargo.lock` was moved to `legacy/Cargo.lock.before-servo` because
 it contained Boa/ICU 2.3 pins that are not part of this workspace anymore.
 Cargo will create a fresh lockfile on the first build. Check
 `SERVO_MIGRATION.md` for caveats and the exact changed API.
-# Mata
-# Mata
-# Mata
-# Mata
-# Mata

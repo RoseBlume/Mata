@@ -1,0 +1,72 @@
+// MIVL: .mivl files are interpreted at runtime, not compiled into Rust.
+Window {
+    id: root
+    title: "Mata Declarative UI"
+    width: 660
+    height: 410
+    color: #151c2c
+
+    property int count: 0
+    property string greeting: "Hello from Mata!"
+
+    Rectangle {
+        id: panel
+        x: 28
+        y: 26
+        width: parent.width - 56
+        height: 340
+        color: #26354a
+    }
+
+    Column {
+        x: 56
+        y: 48
+        spacing: 14
+        Text {
+            id: titleText
+            text: greeting
+            fontSize: 26
+            width: 500
+            height: 50
+        }
+        Text {
+            id: counterText
+            width: 450
+            height: 42
+            fontSize: 24
+            text: "Counter: " + count
+        }
+        Row {
+            spacing: 12
+            Button {
+                id: increment
+                width: 148
+                text: "Increment"
+                onClicked: { count += 1 }
+            }
+            Button {
+                id: decrement
+                width: 148
+                text: "Decrement"
+                onClicked: { count = max(0, count - 1) }
+            }
+            Button {
+                id: reset
+                width: 100
+                text: "Reset"
+                onClicked: { count = 0 }
+            }
+        }
+        TextField {
+            id: input
+            width: 420
+            text: "Edit the greeting"
+            onAccepted: { greeting = input.text }
+        }
+        Text {
+            text: count >= 10 ? "Double digits!" : "Keep clicking!"
+            width: 420
+            height: 40
+        }
+    }
+}

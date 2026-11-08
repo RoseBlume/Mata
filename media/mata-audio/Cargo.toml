@@ -1,0 +1,263 @@
+[package]
+name = "mata-audio"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "Mata audio decoding, metadata, low-level native playback and optional desktop media controls"
+
+[features]
+# Full-featured build: native playback, runtime SIMD, every decoder/demuxer,
+# every metadata parser, and content-based automatic decoder selection.
+default = [
+    "native-playback",
+    "native-pulseaudio",
+    "native-realtime",
+    "simd",
+    "all-codecs",
+    "all-demuxers",
+    "all-metadata",
+    "auto-detect",
+    "offline",
+]
+
+# Runtime-dispatched SIMD acceleration. Scalar fallbacks remain available when
+# this feature is disabled.
+simd = []
+
+# Internal performance harnesses and optional per-stage timing. Neither is
+# enabled in normal library builds.
+benchmarking = []
+perf-instrumentation = []
+
+# Offline/high-throughput pipeline. This uses only std by default and remains
+# isolated from the latency-first playback callback/mixer path.
+offline = ["auto-detect"]
+# Optional quantified approximations; exact/default math is unchanged.
+fast-math = []
+# Explicit software-prefetch experiment. Disabled unless profiling selects it.
+prefetch = []
+# Optional local-file memory mapping for the P600 experiment.
+mmap = ["offline", "dep:memmap2"]
+
+# ---- Codec features -------------------------------------------------------
+codec-flac = ["demux-flac"]
+codec-mp1 = []
+codec-mp2 = []
+codec-mp3 = []
+codec-pcm = []
+codec-vorbis = ["demux-ogg"]
+all-codecs = [
+    "codec-flac",
+    "codec-mp1",
+    "codec-mp2",
+    "codec-mp3",
+    "codec-pcm",
+    "codec-vorbis",
+]
+
+# ---- Demuxer features -----------------------------------------------------
+demux-aiff = []
+demux-flac = []
+demux-matroska = []
+demux-ogg = []
+demux-wav = []
+all-demuxers = [
+    "demux-aiff",
+    "demux-flac",
+    "demux-matroska",
+    "demux-ogg",
+    "demux-wav",
+]
+
+# ---- Metadata features ----------------------------------------------------
+metadata-ape = []
+metadata-id3v1 = []
+metadata-id3v2 = []
+metadata-iso-mp4 = []
+metadata-riff = []
+metadata-vorbis-flac = ["demux-flac"]
+metadata-vorbis-ogg = ["demux-ogg"]
+all-metadata = [
+    "metadata-ape",
+    "metadata-id3v1",
+    "metadata-id3v2",
+    "metadata-iso-mp4",
+    "metadata-riff",
+    "metadata-vorbis-flac",
+    "metadata-vorbis-ogg",
+]
+
+# Content-based AudioDecoder/AudioFormat convenience API. Direct codec types
+# can still be used without this feature in small builds.
+auto-detect = [
+    "codec-flac",
+    "codec-mp1",
+    "codec-mp2",
+    "codec-mp3",
+    "codec-pcm",
+    "codec-vorbis",
+    "demux-aiff",
+    "demux-wav",
+]
+
+# Unified native I/O backend (WASAPI, ALSA/PulseAudio, AAudio) formerly
+# maintained in the separate mata-playback crate. No sibling crate is needed.
+native-playback = ["auto-detect", "dep:dasp_sample", "dep:alsa", "dep:libc", "dep:windows", "dep:windows-core", "dep:ndk", "dep:ndk-context", "dep:jni", "dep:num-derive", "dep:num-traits"]
+# Minimal browser Web Audio bridge: ZERO external Rust dependencies.
+# Select with --no-default-features --features web-audio for WASM.
+web-audio = []
+# Backwards-compatible Cargo feature spelling for existing downstream builds.
+mata-playback = ["native-playback"]
+# Aliases for former standalone playback feature names.
+pulseaudio = ["native-pulseaudio"]
+realtime = ["native-realtime"]
+native-realtime = ["native-playback"]
+native-pulseaudio = ["native-playback", "dep:pulseaudio", "dep:futures", "dep:portable-atomic"]
+# System media integration is opt-in; never required for decoding/playing audio.
+smtc = ["native-playback"]
+mpris = ["native-playback", "dep:zbus"]
+cpal = ["dep:cpal", "auto-detect"]
+
+[dependencies]
+dasp_sample = { version = "0.11", optional = true }
+cpal = { version = "0.18.2", optional = true, features = ["realtime"] }
+memmap2 = { version = "0.9", optional = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+alsa = { version = "0.11", optional = true }
+pulseaudio = { version = "0.3", optional = true }
+futures = { version = "0.3", optional = true }
+portable-atomic = { version = "1", optional = true }
+zbus = { version = "5", optional = true, features = ["blocking"] }
+
+[target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies]
+libc = { version = "0.2", optional = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-core = { version = "0.62", optional = true }
+windows = { version = "0.62", optional = true, features = [
+    "Win32_Media", "Win32_Media_Audio", "Win32_Foundation",
+    "Win32_Devices_Properties", "Win32_Media_KernelStreaming",
+    "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_System_Threading",
+    "Win32_System_Performance", "Win32_Security", "Win32_System_SystemServices",
+    "Win32_System_Variant", "Win32_Media_Multimedia",
+    "Win32_UI_Shell_PropertiesSystem", "Win32_System_WinRT",
+    "Media", "Foundation", "Foundation_Collections", "Storage_Streams",
+] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+ndk = { version = "0.9", optional = true, default-features = false, features = ["audio", "api-level-26"] }
+ndk-context = { version = "0.1", optional = true }
+jni = { version = "0.22", optional = true }
+num-derive = { version = "0.4", optional = true }
+num-traits = { version = "0.2", optional = true }
+
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+anyhow = "1.0"
+hound = "3.5"
+ringbuf = "0.4"
+clap = { version = ">=4.6, <5", features = ["derive"] }
+
+[[example]]
+name = "play"
+required-features = ["cpal", "auto-detect"]
+
+[[example]]
+name = "play_streaming"
+required-features = ["cpal", "auto-detect"]
+
+[[example]]
+name = "emit_pcm"
+required-features = ["auto-detect"]
+
+# Examples moved from the former mata-playback package.
+
+[[example]]
+name = "native_beep"
+required-features = ["native-playback"]
+
+[[example]]
+name = "native_enumerate"
+required-features = ["native-playback"]
+
+[[example]]
+name = "native_feedback"
+required-features = ["native-playback"]
+
+[[example]]
+name = "native_record_wav"
+required-features = ["native-playback"]
+
+[[example]]
+name = "native_synth_tones"
+required-features = ["native-playback"]
+
+[[example]]
+name = "mpris_player"
+required-features = ["mpris"]
+
+[[example]]
+name = "apple_sine"
+path = "examples/apple_sine.rs"
+required-features = ["native-playback"]
+[[bin]]
+name = "mata-audio-perf"
+path = "src/bin/mata-audio-perf.rs"
+required-features = ["benchmarking", "auto-detect"]
+
+[[bin]]
+name = "mata-audio-demux-perf"
+path = "src/bin/mata-audio-demux-perf.rs"
+required-features = ["benchmarking", "all-demuxers"]
+
+[[bin]]
+name = "mata-audio-demux-fuzz"
+path = "src/bin/mata-audio-demux-fuzz.rs"
+required-features = ["benchmarking", "all-demuxers"]
+
+[[bin]]
+name = "mata-audio-metadata-perf"
+path = "src/bin/mata-audio-metadata-perf.rs"
+required-features = ["benchmarking"]
+
+[[bin]]
+name = "mata-audio-metadata-fuzz"
+path = "src/bin/mata-audio-metadata-fuzz.rs"
+required-features = ["benchmarking"]
+
+[[bin]]
+name = "mata-audio-seek-perf"
+path = "src/bin/mata-audio-seek-perf.rs"
+required-features = ["benchmarking", "auto-detect"]
+
+[[bin]]
+name = "mata-audio-memory-perf"
+path = "src/bin/mata-audio-memory-perf.rs"
+required-features = ["benchmarking", "auto-detect"]
+
+[[bin]]
+name = "mata-audio-math-perf"
+path = "src/bin/mata-audio-math-perf.rs"
+required-features = ["benchmarking"]
+
+[[bin]]
+name = "mata-audio-playback-memory-perf"
+path = "src/bin/mata-audio-playback-memory-perf.rs"
+required-features = ["benchmarking", "native-playback"]
+
+[[bin]]
+name = "mata-audio-offline-perf"
+path = "src/bin/mata-audio-offline-perf.rs"
+required-features = ["benchmarking", "offline"]
+
+[[bin]]
+name = "mata-audio-memory-strategies"
+path = "src/bin/mata-audio-memory-strategies.rs"
+required-features = ["benchmarking"]
+
+[[bin]]
+name = "mata-audio-device-perf"
+path = "src/bin/mata-audio-device-perf.rs"
+required-features = ["benchmarking", "native-playback"]
+

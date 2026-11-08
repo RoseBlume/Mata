@@ -1,0 +1,65 @@
+{
+  "audit_policy": "Conservative static declared-spelling inventory; NOT emission or GPU support proof.",
+  "backend_names": [
+    "wgsl",
+    "glsl",
+    "hlsl",
+    "intel_opencl",
+    "nvidia_cuda",
+    "amd_hip"
+  ],
+  "catalog_entries": 322,
+  "catalog_order_sha256": "0fd51ed64fdacc7a2ae7b96ded04a010f37b56bb17e7fbb65e9342b88bef6a3b",
+  "declared_mapping_counts": {
+    "amd_hip": 108,
+    "glsl": 185,
+    "hlsl": 124,
+    "intel_opencl": 102,
+    "nvidia_cuda": 89,
+    "wgsl": 135
+  },
+  "schema_version": 1,
+  "source_references": [
+    {
+      "edition": "13.4.2 (Sep 10 2026)",
+      "file": "cuda-programming-guide.pdf",
+      "id": "cuda-guide-13.4.2",
+      "scope": "Programming guide (not exhaustive runtime signature reference)"
+    },
+    {
+      "edition": "RST compilation (Oct 16 2026)",
+      "file": "AMD_HIP_Reference(1).pdf",
+      "id": "amd-hip-rst-compilation",
+      "scope": "HIP modules, math, complex and low-precision types; runtime Doxygen signatures missing"
+    },
+    {
+      "edition": "Rev. 0922 (2022)",
+      "file": "opencl30-reference-guide.pdf",
+      "id": "opencl-3-quick-reference",
+      "scope": "Condensed OpenCL 3.0 host APIs and C builtins; optional features marked"
+    }
+  ],
+  "sources": {
+    "src/amd.rs": "9e9d6ba7aa928d51158a8e51ad7ff941ae3b650212993f5939714db9b8f8a773",
+    "src/catalog.rs": "ebc7adc80a35d40d1b208a40e33544f932be8ee75e3e3b51493188aebc7cf5e7",
+    "src/dispatch.rs": "f94161f2fa032629008408bca274e64edec7e646206c13b4f678fc70ac5ae268",
+    "src/emit.rs": "d5437ec574e23b83600293321bef426a5a9acb54289b3281d3e3979fed75c5c4",
+    "src/intel.rs": "d686e7c79ddafbb0b2af3cf6cbace4d785c015075774343d52fc742de41e0aa4",
+    "src/nvidia.rs": "a69c8002ab6118cbcaf3ea254d9dd2d255599ac30068104b4cccefb52b77d3a6",
+    "src/ops.rs": "9da4d90eea51e5851494cb83373583b9f80fe1aa32c5e05346387bf0ec2555fb",
+    "src/types.rs": "fd84da57989081ffcee0f3e35e492b233a3a156867131b16c58818869fcc1c1a"
+  },
+  "unmapped_counts": {
+    "amd_hip": 214,
+    "glsl": 137,
+    "hlsl": 198,
+    "intel_opencl": 220,
+    "nvidia_cuda": 233,
+    "wgsl": 187
+  },
+  "validation": {
+    "cargo_checks": "not executed by generator",
+    "gpu_compilation": "not executed by generator",
+    "python_static": "run tools/phase0_audit.py --check"
+  }
+}

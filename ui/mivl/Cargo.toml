@@ -1,0 +1,23 @@
+[package]
+name = "mivl"
+version = "0.7.4"
+edition = "2024"
+description = "Dependency-free QML-inspired interpreted declarative UI language for Mata"
+license = "MIT"
+
+[dependencies]
+mivl-macros = { path = "../../macros/mivl-macros" }
+mata-ui = { path = "../mata-ui", default-features = false, features = ["fonts", "image", "wayland", "x11"] }
+mata-win = { path = "../mata-win", default-features = false, features = ["wayland", "x11"] }
+
+[[bin]]
+name = "mivl"
+path = "src/bin/mivl.rs"
+
+[[example]]
+name = "command_host"
+path = "examples/command_host.rs"
+
+[[example]]
+name = "bridge_host"
+path = "examples/bridge_host.rs"

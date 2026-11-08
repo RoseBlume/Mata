@@ -1,0 +1,7 @@
+# Keys can be grouped with dots. Strings are UTF-8.
+app.title = Mata
+app.welcome = Welcome, {name}!
+app.file_count = {count, plural, =0 {No files} one {# file} other {# files}}
+app.notification = {person, select, unknown {New message} other {Message from {person}}}
+actions.save = Save
+actions.cancel = Cancel

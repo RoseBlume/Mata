@@ -1,0 +1,15 @@
+[package]
+name = "mata-hole"
+version = "1.0.0"
+edition = "2024"
+description = "Mata Hole - an arcade city-swallowing game built with Mata"
+license = "MIT"
+
+[dependencies]
+mata-fonts = { path = "../../media/mata-fonts" }
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+mata-win = { path = "../../ui/mata-win", default-features = false }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+mata-win = { path = "../../ui/mata-win", default-features = false, features = ["wayland", "x11"] }

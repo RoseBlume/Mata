@@ -1,0 +1,74 @@
+Window {
+    title: "MIVL Responsive UI"
+    width: 920
+    height: 650
+    color: "#0f172a"
+    fontSize: 16px
+
+    Rectangle {
+        id: panel
+        x: 3vw
+        y: 3vh
+        width: 94vw
+        height: 90vh
+        minWidth: 300px
+        color: "#1e293b"
+        borderRadius: 20px
+        borderWidth: 2px
+        borderColor: "#64748b"
+        borderPadding: 18px
+
+        Column {
+            width: parent.width - 36px
+            height: parent.height - 36px
+            spacing: 12px
+
+            Text {
+                text: "Responsive MIVL"
+                color: "#ffffff"
+                fontSize: 2rem
+                height: auto
+            }
+            Text {
+                text: "Resize the window to exercise vw, vh, em, % and parent.width"
+                color: "#cbd5e1"
+                fontSize: 0.95em
+                height: auto
+            }
+            Rectangle {
+                id: scroller
+                width: 100%
+                height: 50%
+                overflow: "auto"
+                scrollbarPolicy: "auto"
+                scrollbarWidth: 12px
+                scrollbarColor: "#38bdf8"
+                scrollbarTrackColor: "#334155"
+                color: "#334155"
+                borderRadius: 10px
+                borderPadding: 12px
+
+                Column {
+                    spacing: 8px
+                    width: parent.width - 40px
+                    height: auto
+                    Text { text: "Scroll with the wheel, a gesture, or the scrollbar"; height: auto }
+                    Text { text: "Content row 1"; height: 45px }
+                    Text { text: "Content row 2"; height: 45px }
+                    Text { text: "Content row 3"; height: 45px }
+                    Text { text: "Content row 4"; height: 45px }
+                    Text { text: "Content row 5"; height: 45px }
+                    Text { text: "Content row 6"; height: 45px }
+                    Text { text: "Content row 7"; height: 45px }
+                    Text { text: "Content row 8"; height: 45px }
+                }
+            }
+            Button {
+                width: auto
+                height: auto
+                text: "Autosized button"
+                padding: 12px
+            }
+        }
+    }
+}

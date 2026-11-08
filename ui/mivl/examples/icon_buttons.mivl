@@ -1,0 +1,24 @@
+Window {
+    title: "MIVL buttons with Image children"
+    width: 360
+    height: 145
+
+    Button {
+        id: save
+        x: 16; y: 22; width: 42; height: 42
+        Image { source: "ui/mivl/examples/assets/save.png"; width: 24; height: 24 }
+    }
+    Button {
+        id: open
+        x: 66; y: 22; width: 42; height: 42
+        Image { source: "ui/mivl/examples/assets/open.png"; width: 24; height: 24 }
+    }
+    Button {
+        id: confirm
+        x: 116; y: 22; width: 210; height: 42
+        Row {
+            Image { source: "ui/mivl/examples/assets/save.png"; width: 20; height: 20 }
+            Text { text: "Confirm" }
+        }
+    }
+}

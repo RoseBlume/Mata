@@ -1,0 +1,16 @@
+[app]
+package = "mineral-empire"
+bin = "mineral-empire"
+name = "Mineral Empire"
+version = "0.1.0"
+license = "MIT"
+assets = "assets"
+
+[android]
+application_id = "com.mata.mineralempire"
+activity = "android.app.NativeActivity"
+lib_name = "mineral_empire"
+min_sdk = 26
+target_sdk = 35
+compile_sdk = 35
+abis = ["arm64-v8a", "x86_64"]

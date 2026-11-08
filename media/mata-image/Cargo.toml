@@ -1,0 +1,61 @@
+[package]
+name = "mata-image"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rav1d = { version = "1.1.0", optional = true }
+remata-macros = { path = "../../macros/remata-macros", optional = true }
+mata-gpu-intrinsics = { path = "../../graphics/mata-gpu-intrinsics", optional = true, default-features = false }
+
+[features]
+default = ["all-formats", "simd", "gpu-opencl"]
+# Runtime OpenCL is loaded dynamically, with no SDK or GPU required to build.
+gpu-opencl = ["dep:mata-gpu-intrinsics"]
+# Native bridges are loaded at runtime; they do not require the toolkits at Rust build time.
+gpu-hip = []
+gpu-cuda = []
+simd = []
+nightly = []
+
+# Stable raster formats. Keeping this convenience group as the default is an API
+# ergonomics choice; footprint-sensitive users should disable default features
+# and select only the formats they need.
+all-formats = ["bmp", "pgm", "tga", "png", "wbmp", "qoi", "jpeg", "webp", "gif", "fits", "ico"]
+bmp = []
+pgm = []
+tga = []
+png = ["dep:remata-macros"]
+wbmp = []
+qoi = ["dep:remata-macros"]
+jpeg = []
+webp = []
+gif = []
+fits = []
+ico = ["png", "bmp"]
+
+# Experimental formats are never pulled into all-formats implicitly.
+experimental-formats = ["avif", "tiff", "svg"]
+avif = ["dep:rav1d"]
+tiff = ["dep:remata-macros"]
+svg = []
+
+[dev-dependencies]
+image = "0.25.10"
+rust_xlsxwriter = "0.99.1"
+
+[[bench]]
+name = "decode"
+harness = false
+
+[[bench]]
+name = "decode_gpu"
+harness = false
+
+[[bench]]
+name = "png_hotpath"
+harness = false
+
+[[bench]]
+name = "full_gpu"
+harness = false

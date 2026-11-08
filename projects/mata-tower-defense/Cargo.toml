@@ -1,0 +1,9 @@
+[package]
+name = "mata-tower-defense"
+version = "1.0.0"
+edition = "2024"
+description = "AEGIS - tower defense game, built with Mata crates"
+
+[dependencies]
+mata-win = { path = "../../ui/mata-win" }
+mata-fonts = { path = "../../media/mata-fonts" }

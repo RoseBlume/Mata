@@ -1,0 +1,16 @@
+[package]
+name = "mata-bundler"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "Build and bundle Mata applications for Android, Windows, and Linux"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+
+[[bin]]
+name = "mata"
+path = "src/main.rs"
+
+# The mata CLI has no Cargo dependencies. Toolchains such as WiX, NSIS,
+# Cargo, the Android SDK and rpmbuild are invoked only for relevant targets.
+[dependencies]

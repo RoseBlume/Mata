@@ -1,0 +1,12 @@
+[package]
+name = "mata-i18n"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+description = "Dependency-free internationalization and message formatting for Mata"
+keywords = ["i18n", "localization", "l10n", "translations"]
+categories = ["internationalization", "localization"]
+
+[dependencies]
+# Intentionally empty. This crate uses the Rust standard library exclusively.

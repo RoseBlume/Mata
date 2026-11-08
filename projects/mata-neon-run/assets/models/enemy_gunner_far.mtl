@@ -1,0 +1,23 @@
+# Flat-colour PBR-free materials for Mata software rasterizer
+newmtl dark
+Kd 0.082353 0.129412 0.184314
+
+newmtl metal
+Kd 0.211765 0.294118 0.360784
+
+newmtl joint
+Kd 0.125490 0.176471 0.239216
+
+newmtl silver
+Kd 0.439216 0.537255 0.592157
+
+newmtl light
+Kd 0.607843 0.803922 0.882353
+
+newmtl red
+Kd 0.850980 0.411765 0.254902
+
+newmtl charge
+Kd 1.000000 0.835294 0.352941
+Ke 0.750000 0.750000 0.750000
+

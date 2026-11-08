@@ -1,0 +1,90 @@
+Window {
+    title: "MIVL Views"
+    width: 900
+    height: 600
+    color: "#151e2b"
+
+    property int itemCount: 12
+    property string chosen: "Select a row"
+
+    Text {
+        x: 24; y: 12; width: 760; height: 36
+        fontSize: 24
+        text: "Views demo - list, grid, scrolling, pages"
+    }
+
+    Button {
+        id: grow
+        x: 24; y: 60; width: 145
+        text: "Add row"
+        onClicked: { itemCount += 1 }
+    }
+    Button {
+        id: shrink
+        x: 180; y: 60; width: 145
+        text: "Remove row"
+        onClicked: { itemCount = max(0, itemCount - 1) }
+    }
+    Text { x: 342; y: 62; width: 470; text: chosen }
+
+    Text { x: 24; y: 116; text: "ListView"; fontSize: 20 }
+    ListView {
+        id: list
+        x: 24; y: 146; width: 265; height: 380
+        spacing: 4
+        scrollStep: 90
+        model: itemCount
+        delegate: Button {
+            height: 38
+            text: "Row " + (index + 1)
+            onClicked: { chosen = "Selected row " + (index + 1) }
+        }
+    }
+
+    Text { x: 316; y: 116; text: "GridView"; fontSize: 20 }
+    GridView {
+        id: grid
+        x: 316; y: 146; width: 265; height: 380
+        columns: 2
+        cellWidth: 116; cellHeight: 68
+        spacing: 8
+        model: ["Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon", "Sodium", "Magnesium"]
+        delegate: Button {
+            text: modelData
+            onClicked: { chosen = "Picked " + modelData }
+        }
+    }
+
+    Text { x: 608; y: 116; text: "StackView"; fontSize: 20 }
+    StackView {
+        id: pages
+        x: 608; y: 146; width: 255; height: 226
+        currentIndex: 0
+        Rectangle {
+            color: "#2563eb"
+            Text { x: 12; y: 16; text: "Page One"; fontSize: 22 }
+        }
+        Rectangle {
+            color: "#7c3aed"
+            Text { x: 12; y: 16; text: "Page Two"; fontSize: 22 }
+        }
+        Rectangle {
+            color: "#0f766e"
+            Text { x: 12; y: 16; text: "Page Three"; fontSize: 22 }
+        }
+    }
+    Button {
+        x: 608; y: 390; width: 110
+        text: "Previous"
+        onClicked: { pages.currentIndex = max(0, pages.currentIndex - 1) }
+    }
+    Button {
+        x: 730; y: 390; width: 110
+        text: "Next"
+        onClicked: { pages.currentIndex = min(2, pages.currentIndex + 1) }
+    }
+    Text {
+        x: 608; y: 438; width: 255
+        text: "Page: " + (pages.currentIndex + 1)
+    }
+}

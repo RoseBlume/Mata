@@ -1,0 +1,11 @@
+/target/
+*.docx
+!/tests/fixture_deflate.docx
+*.pdf
+*.png
+!/tests/tiny.png
+*.html
+*.md
+!README.md
+!FEATURES.md
+!ROADMAP.md

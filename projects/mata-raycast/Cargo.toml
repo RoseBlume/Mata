@@ -1,0 +1,19 @@
+[package]
+name = "mata-raycast"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Retro FPS with hybrid software raycasting and real 3D mesh rendering"
+
+[dependencies]
+mata-win = { path = "../../ui/mata-win", default-features = false, features = ["wayland", "x11"] }
+mata-ui = { path = "../../ui/mata-ui", default-features = false, features = ["fonts"] }
+mata-3d = { path = "../../graphics/mata-3d" }
+mata-image = { path = "../../media/mata-image", default-features = false, features = ["png"] }
+mata-audio = { path = "../../media/mata-audio", default-features = false, features = ["native-playback", "codec-pcm", "demux-wav"] }
+mata-fonts = { path = "../../media/mata-fonts" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1

@@ -1,0 +1,9 @@
+[package]
+name = "mivl-macros"
+version = "0.6.0"
+edition = "2024"
+description = "Dependency-free #[command] attribute for MIVL"
+license = "MIT"
+
+[lib]
+proc-macro = true

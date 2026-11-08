@@ -1,0 +1,19 @@
+[package]
+name = "mata-3d"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Dependency-light software 3D mesh rasterizer for MataWin framebuffers"
+
+[dependencies]
+mata-gpu-intrinsics = { path = "../mata-gpu-intrinsics" }
+mata-win = { path = "../../ui/mata-win", default-features = false }
+
+[dev-dependencies]
+
+[features]
+# The native MataWin Linux backend needs at least one window transport.
+# X11 is the default, matching Neon Run's native mouse-grab mode.
+default = ["x11"]
+x11 = ["mata-win/x11"]
+wayland = ["mata-win/wayland"]

@@ -1,0 +1,199 @@
+[package]
+name = "mata-ui"
+version = "0.1.0"
+edition = "2024"
+description = "Mata software widgets, layout, text, media and Servo webview"
+autoexamples = false
+
+[dependencies]
+mata-doc-edit = { path = "../../media/mata-doc-edit" }
+mata-i18n = { path = "../../core/mata-i18n", optional = true }
+mata-win = { path = "../mata-win", default-features = false }
+mata-fonts = { path = "../../media/mata-fonts", optional = true }
+mata-image = { path = "../../media/mata-image", default-features = false, optional = true }
+mata-audio = { path = "../../media/mata-audio", optional = true }
+mata-video = { path = "../../media/mata-video", optional = true }
+# Servo 0.7 software framebuffer backend; no GTK/WebKit/WebView2 dependency.
+servo = { version = "=0.7.0", optional = true }
+dpi = { version = "0.1", optional = true }
+url = { version = "2", optional = true }
+rustls = { version = "0.23", optional = true, features = ["aws_lc_rs"] }
+
+
+[features]
+i18n = ["dep:mata-i18n"]
+default = ["wayland", "x11", "fonts", "audio", "image"]
+wayland = ["mata-win/wayland"]
+x11 = ["mata-win/x11"]
+fonts = ["dep:mata-fonts", "dep:mata-image", "mata-image/png"]
+audio = ["dep:mata-audio"]
+image = ["dep:mata-image", "mata-image/all-formats", "mata-image/svg"]
+video = ["dep:mata-video"]
+webview = ["webview-servo"]
+# The only HTML webview engine. It is not part of default feature set.
+webview-servo = ["dep:servo", "dep:dpi", "dep:url", "dep:rustls"]
+
+[[example]]
+name = "widget_text"
+path = "examples/widget_text.rs"
+required-features = ["fonts"]
+
+[[example]]
+name = "widget_gallery"
+path = "examples/widget_gallery.rs"
+required-features = ["fonts"]
+
+[[example]]
+name = "nested_widgets"
+path = "examples/nested_widgets.rs"
+required-features = ["fonts"]
+
+[[example]]
+name = "styling"
+path = "examples/styling.rs"
+required-features = ["fonts"]
+
+[[example]]
+name = "widget_image"
+path = "examples/widget_image.rs"
+required-features = ["image"]
+
+[[example]]
+name = "image_gallery"
+path = "examples/image_gallery.rs"
+required-features = ["image", "fonts"]
+
+[[example]]
+name = "widget_media"
+path = "examples/widget_media.rs"
+required-features = ["audio"]
+
+[[example]]
+name = "audio_player"
+path = "examples/audio_player.rs"
+required-features = ["audio"]
+
+[[example]]
+name = "browser"
+path = "examples/browser.rs"
+required-features = ["webview"]
+
+[[example]]
+name = "browser_servo"
+path = "examples/browser.rs"
+required-features = ["webview-servo"]
+
+[[example]]
+name = "video_widget"
+path = "examples/video_widget.rs"
+required-features = ["video"]
+
+[[example]]
+name = "video_gallery"
+path = "examples/video_gallery.rs"
+required-features = ["video", "fonts"]
+
+[[example]]
+name = "fits_gallery"
+path = "examples/fits_gallery.rs"
+required-features = ["fonts"]
+
+[[example]]
+name = "i18n_switch"
+path = "examples/i18n_switch.rs"
+required-features = ["i18n"]
+
+[[example]]
+name = "icon_buttons"
+path = "examples/icon_buttons.rs"
+
+[[example]]
+name = "selectable_text"
+path = "examples/selectable_text.rs"
+required-features = ["fonts"]
+
+[[example]]
+name = "roadmap_01_focus"
+path = "examples/roadmap_01_focus.rs"
+
+[[example]]
+name = "roadmap_02_keyboard"
+path = "examples/roadmap_02_keyboard.rs"
+
+[[example]]
+name = "roadmap_03_nested"
+path = "examples/roadmap_03_nested.rs"
+
+[[example]]
+name = "roadmap_04_catalog"
+path = "examples/roadmap_04_catalog.rs"
+
+[[example]]
+name = "roadmap_05_context_menu"
+path = "examples/roadmap_05_context_menu.rs"
+
+[[example]]
+name = "roadmap_06_ime"
+path = "examples/roadmap_06_ime.rs"
+
+[[example]]
+name = "roadmap_07_editing"
+path = "examples/roadmap_07_editing.rs"
+
+[[example]]
+name = "roadmap_08_theme"
+path = "examples/roadmap_08_theme.rs"
+
+[[example]]
+name = "roadmap_09_states"
+path = "examples/roadmap_09_states.rs"
+
+[[example]]
+name = "roadmap_10_scroll"
+path = "examples/roadmap_10_scroll.rs"
+
+[[example]]
+name = "roadmap_11_accessibility"
+path = "examples/roadmap_11_accessibility.rs"
+
+[[example]]
+name = "roadmap_12_dialogs"
+path = "examples/roadmap_12_dialogs.rs"
+
+[[example]]
+name = "roadmap_13_unicode"
+path = "examples/roadmap_13_unicode.rs"
+
+[[example]]
+name = "roadmap_14_builder"
+path = "examples/roadmap_14_builder.rs"
+
+[[example]]
+name = "roadmap_15_regression"
+path = "examples/roadmap_15_regression.rs"
+
+[[example]]
+name = "scroll_sensitivity"
+path = "examples/scroll_sensitivity.rs"
+
+[[example]]
+name = "file_dialog_showcase"
+path = "examples/file_dialog_showcase.rs"
+
+[[example]]
+name = "portal_file_dialog"
+path = "examples/portal_file_dialog.rs"
+
+[[example]]
+name = "auto_text_layout"
+path = "examples/auto_text_layout.rs"
+required-features = ["fonts"]
+
+[[example]]
+name = "simplified_layouts"
+path = "examples/simplified_layouts.rs"
+
+
+[[example]]
+name = "system_appearance"
+path = "examples/system_appearance.rs"

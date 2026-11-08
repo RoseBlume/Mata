@@ -1,0 +1,24 @@
+// Run using a Rust host (examples/command_host.rs) that registers the commands.
+Window {
+    title: "Mata command bridge"
+    width: 560
+    height: 360
+    property string result: "Press the button"
+    property int counter: 0
+
+    Column {
+        x: 24; y: 24; spacing: 12
+        Text {width: 500; height: 40; text: result; fontSize: 23}
+        TextField {id: nameInput; width: 300; height: 40; text: "Mata"}
+        Button {
+            width: 180
+            text: "Call Rust"
+            onClicked: {
+                result = invoke("greet", nameInput.text)
+                counter = invoke("add_numbers", counter, 1)
+                invoke("log_message", result)
+            }
+        }
+        Text {text: "Invocations: " + counter}
+    }
+}
